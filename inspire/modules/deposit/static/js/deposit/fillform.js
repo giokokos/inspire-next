@@ -20,8 +20,21 @@
  * or submit itself to any jurisdiction.
  */
 
-$(document).ready( function() {
 
+require.config({
+    baseUrl: '/',
+    paths: {
+        "jquery.bootstrap": "js/bootstrap"
+    },
+    shim: {
+        "jquery.bootstrap": {
+            deps: ["jquery"]
+        }
+    }
+});
+
+require(['jquery.bootstrap'], function(){
+$(document).ready( function() {
   var $field_list = {
     article: $('*[class~="article-related"]'),
 	  thesis: $('*[class~="thesis-related"]'),
@@ -195,4 +208,5 @@ $(document).ready( function() {
 
     btn.button('reset');
   });
+});
 });
