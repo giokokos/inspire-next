@@ -49,15 +49,39 @@ PROCEEDINGS_CLASS = " proceedings-related"
 #
 def importdata_button(field, **dummy_kwargs):
     """Import data button."""
-    html = u'<button %s data-loading-text="%s">%s</button>' % \
-           (html_params(style="float:right; width: 160px;",
+    html = u'<button %s>%s</button>' % \
+           (html_params(style="float:right; width: 160px; font-weight: bold;",
                         id="importData",
-                        class_="btn btn-primary btn-large",
+                        class_="btn btn-success btn-large",
                         name="importData",
                         type="button"),
-            _('Importing data...'),
-            _('Import data'))
+            _('Auto import'))
     return HTMLString(html)
+
+
+def skip_importdata(field, **dummy_kwargs):
+    """Skip Import data button."""
+    html = u'<a %s href="%s">%s</a>' % \
+           (html_params(style="text-decoration: underline; \
+                        display: inline-block; padding: 15px 15px;",
+                        id="skipImportData",
+                        class_="",
+                        name="skipImportData",
+                        type="button"),
+            _('#'),
+            _('Skip, and fill the form manually'))
+    return HTMLString(html)
+
+
+#
+# Group buttons of import and skip
+#
+def create_buttons(field, **dummy_kwargs):
+    """Buttons for import data and skip"""
+    html_skip = skip_importdata(field)
+    html_import = importdata_button(field)
+    html = [u'<div class="pull-right">' + html_skip + html_import + u'</div>']
+    return HTMLString(u''.join(html))
 
 
 def radiochoice_buttons(field, **dummy_kwargs):
@@ -151,7 +175,7 @@ class LiteratureForm(WebDepositForm):
     )
 
     arxiv_id = ArXivField(
-        label=_('ArXiv ID'),
+        label=_('arXiv ID'),
     )
 
     isbn = ISBNField(
@@ -159,9 +183,9 @@ class LiteratureForm(WebDepositForm):
         widget_classes='form-control',
     )
 
-    import_source = fields.SubmitField(
+    create_btns = fields.SubmitField(
         label=_(' '),
-        widget=importdata_button,
+        widget=create_buttons
     )
 
     types_of_doc = [("article", _("Article/Conference paper")),
@@ -418,9 +442,10 @@ class LiteratureForm(WebDepositForm):
 
     groups = [
         ('Import from existing source',
-            ['arxiv_id', 'doi', 'isbn', 'import_source'],
+            ['arxiv_id', 'doi', 'isbn', 'create_btns'],
             {
-                'indication': 'Fill if you have a DOI, arXiv ID or ISBN',
+                'description': "Enter a DOI, an arXiv ID, or an ISBN, or both. \
+                If you don't have one, skip this step.",
             }),
         ('Document Type',
             ['captcha', 'type_of_doc', ]),

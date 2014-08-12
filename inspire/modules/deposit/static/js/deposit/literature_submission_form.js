@@ -192,7 +192,7 @@ LiteratureSubmissionForm.prototype = {
 
     importButtonStates = {
       'loading': 'Importing data...',
-      'reset': 'Import data'
+      'reset': 'Auto import'
     };
 
     var newState = importButtonStates[state];
