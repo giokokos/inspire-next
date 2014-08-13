@@ -49,12 +49,13 @@ PROCEEDINGS_CLASS = " proceedings-related"
 #
 def importdata_button(field, **dummy_kwargs):
     """Import data button."""
-    html = u'<button %s>%s</button>' % \
+    html = u'<a %s href="%s">%s</a>' % \
            (html_params(style="float:right; width: 160px; font-weight: bold;",
                         id="importData",
                         class_="btn btn-success btn-large",
                         name="importData",
                         type="button"),
+            _('#collapse-2'),
             _('Auto import'))
     return HTMLString(html)
 
@@ -68,7 +69,7 @@ def skip_importdata(field, **dummy_kwargs):
                         class_="",
                         name="skipImportData",
                         type="button"),
-            _('#'),
+            _('#collapse-2'),
             _('Skip, and fill the form manually'))
     return HTMLString(html)
 

@@ -65,6 +65,39 @@ require(["jquery", "js/deposit/form"], function($, form, bootstrap) {
   $(".datepicker").datepicker(date_options);
 
   var form = new LiteratureSubmissionForm(save_url);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  //FIXME: make it more modular and plug it to the LiteratureSubmissionForm.js
+
+  var $root = $('html, body');
+  $('#skipImportData').on('click', function(e){
+
+    $('#webdeposit_form_accordion > .panel:not(:first-child)').removeClass('hide').slideDown();
+
+    var href = $.attr(this, 'href');
+    $root.animate({
+        scrollTop: $(href).offset().top
+    }, 500, function () {
+        window.location.hash = href;
+    });
+
+  })
+
+  $('#importData').on('click', function(e){
+
+    $('#webdeposit_form_accordion > .panel:not(:first-child)').removeClass('hide').slideDown();
+
+    var href = $.attr(this, 'href');
+    $root.animate({
+        scrollTop: $(href).offset().top
+    }, 500, function () {
+        window.location.hash = href;
+    });
+
+  })
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 });
 </script>
 {% endblock javascript %}
