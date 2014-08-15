@@ -84,20 +84,20 @@ require(["jquery", "js/deposit/form"], function($, form, bootstrap) {
     $root.animate({
         scrollTop: $(href).offset().top
     }, 500, function () {
-        window.location.hash = href;
+        window.location.hash = '';
     });
 
   })
 
   $('#importData').on('click', function(e){
 
-    $('#webdeposit_form_accordion > .panel:not(:first-child)').removeClass('hide');
+    $('#webdeposit_form_accordion > .panel:not(:first-child), #webdeposit_form_accordion + .well').removeClass('hide');
 
     var href = $.attr(this, 'href');
     $root.animate({
         scrollTop: $(href).offset().top
     }, 500, function () {
-        window.location.hash = href;
+        window.location.hash = '';
     });
 
   })

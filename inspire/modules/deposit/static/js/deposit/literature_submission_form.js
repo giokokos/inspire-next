@@ -278,7 +278,7 @@ LiteratureSubmissionForm.prototype = {
       // callback
       function(result) {
         that.showModal(result.mapping);
-        that.fillForm(result.mapping);
+        // that.fillForm(result.mapping);
         that.fieldsGroup.resetState();
         that.messageBox.clean();
         that.messageBox.append(result.statusMessage);
@@ -377,16 +377,16 @@ LiteratureSubmissionForm.prototype = {
 
   showModal: function showModal(dataMapping) {
 
-    console.log(dataMapping);
+    //console.log(dataMapping);
 
     var myModal = $('#myModal');
     var json_data = JSON.stringify(dataMapping);
 
     modalBody = myModal.find('.modal-body');
 
-    $('#myModal').on('shown.bs.modal', function (e) {
-      // modalBody.text(json_data);
-    });
+    // $('#myModal').on('shown.bs.modal', function (e) {
+    //   // modalBody.text(json_data);
+    // });
 
     this.renderRow(dataMapping);
   },
@@ -420,21 +420,21 @@ LiteratureSubmissionForm.prototype = {
 
     });
 
-    var keysRevamp = Object.keys(jsonData);
+    // var keysRevamp = Object.keys(jsonData);
 
-    console.log(keysRevamp);
+    //console.log(keysRevamp);
 
-    $.map(keysRevamp, function(val, i) {
-      if (val === 'title') {
-        val = 'Title';
-      }
-      if (val === 'title_arXiv') {
-        val = 'Title arXiv';
-      }
-      return keysRevamp;
-    })
+    // $.map(keysRevamp, function(val, i) {
+    //   if (val === 'title') {
+    //     val = 'Title';
+    //   }
+    //   if (val === 'title_arXiv') {
+    //     val = 'Title arXiv';
+    //   }
+    //   return keysRevamp;
+    // })
 
-    console.log(keysRevamp);
+    // console.log(keysRevamp);
 
     table += '</tbody></table>';
 
@@ -457,6 +457,13 @@ LiteratureSubmissionForm.prototype = {
       //   }
       // }
     });
+
+    //FIXME: fill the form only when the user accepts the data
+    that = this;
+    $('#success').on('click', function(){
+      that.fillForm(jsonData);
+    });
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   }
