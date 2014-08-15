@@ -445,6 +445,7 @@ LiteratureSubmissionForm.prototype = {
       maxHeight: 90,
       moreLink: '<a href="#">Read more</a>',
       lessLink: '<a href="#">Less</a>'
+      // this is an experimental fix or not for the read more/less functionality
       // afterToggle: function (trigger, element, expanded) {
       //   if (expanded) {
       //     console.log('expanded');

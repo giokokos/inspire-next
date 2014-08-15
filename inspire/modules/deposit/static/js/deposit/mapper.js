@@ -81,7 +81,6 @@ DataMapper.prototype = {
     if (mapping.contributors) {
       mapping.contributors = $.map(mapping.contributors, this.extract_contributor);
     }
-
     return mapping;
   }
 };

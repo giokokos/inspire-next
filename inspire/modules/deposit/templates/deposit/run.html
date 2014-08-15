@@ -78,7 +78,7 @@ require(["jquery", "js/deposit/form"], function($, form, bootstrap) {
   var $root = $('html, body');
   $('#skipImportData').on('click', function(e){
 
-    $('#webdeposit_form_accordion > .panel:not(:first-child)').removeClass('hide').slideDown();
+    $('#webdeposit_form_accordion > .panel:not(:first-child), #webdeposit_form_accordion + .well').removeClass('hide');
 
     var href = $.attr(this, 'href');
     $root.animate({
@@ -91,7 +91,7 @@ require(["jquery", "js/deposit/form"], function($, form, bootstrap) {
 
   $('#importData').on('click', function(e){
 
-    $('#webdeposit_form_accordion > .panel:not(:first-child)').removeClass('hide').slideDown();
+    $('#webdeposit_form_accordion > .panel:not(:first-child)').removeClass('hide');
 
     var href = $.attr(this, 'href');
     $root.animate({
