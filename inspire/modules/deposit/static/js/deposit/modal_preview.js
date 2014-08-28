@@ -27,12 +27,14 @@ define(function(require, exports, module) {
   // require the Readmore library
   require("/vendors/readmore/readmore.min.js");
 
+  require('./literature_submission_form.js')
+
   //TODO: fill the form only when the user accepts the data
 
   // FIXME: move it inside the ModalPreview definition
-  var o = $({});
-  $.subscribe = o.on.bind(o);
-  $.publish = o.trigger.bind(o);
+  // var o = $({});
+  // $.subscribe = o.on.bind(o);
+  // $.publish = o.trigger.bind(o);
 
   var s,
     ModalPreview = {
@@ -50,67 +52,107 @@ define(function(require, exports, module) {
         s = this.settings;
         //console.log(s.myModal.find('.modal-body'));
         this.bindUIActions();
+
         this.renderModal(results);
+      },
+
+      showForm: function() {
+        $.publish('test');
+        console.log('listening...');
+        $.subscribe("test", function(){
+          console.log('listening...');
+        });
       },
 
       renderModal: function(jsonData) {
 
+        // console.log(jsonData);
+
+        // //FIXME: better format the structure
+        // var tableTemplate = Hogan.compile('<table class="table table-stripped"><tr><th>Labels</th><th>Values</th></tr><tbody>{{{content}}}</tbody></table>');
+        // var rowTemplate = Hogan.compile('<tr>{{{content}}}</tr>\n');
+        // var cellTemplate = Hogan.compile('<td class="{{class}}">{{{content}}}</td>\n');
+
+        // var valueClasses = {
+        //   abstract: 'readmore',
+        //   contributors: 'readmore',
+        // };
+
+        // var authorTemplate = Hogan.compile('{{author}}<br>');
+
+        // var authorsValue = '';
+        // $.each(jsonData.contributors, function(index, author) {
+        //   authorsValue += authorTemplate.render({
+        //     author: author.name
+        //   });
+        // });
+
+        // jsonData.contributors = authorsValue;
+
+        // var tableContent = '';
+
+        // $.each(jsonData, function(index, user) {
+        //   var labelCell = cellTemplate.render({
+        //     class: '',
+        //     content: index,
+        //   });
+        //   var valueCell = cellTemplate.render({
+        //     class: valueClasses[index],
+        //     content: user,
+        //   });
+
+        //   var row = rowTemplate.render({
+        //     content: labelCell + valueCell
+        //   });
+        //   tableContent += row;
+
+        var table = '<table class="table table-stripped"><tr><th>Labels</th><th>Values</th></tr><tbody>';
+
         console.log(jsonData);
 
-        //FIXME: better format the structure
-        var tableTemplate = Hogan.compile('<table class="table table-stripped"><tr><th>Labels</th><th>Values</th></tr><tbody>{{{content}}}</tbody></table>');
-        var rowTemplate = Hogan.compile('<tr>{{{content}}}</tr>\n');
-        var cellTemplate = Hogan.compile('<td class="{{class}}">{{{content}}}</td>\n');
-
-        var valueClasses = {
-          abstract: 'readmore',
-          contributors: 'readmore',
-        };
-
-        var authorTemplate = Hogan.compile('{{author}}<br>');
-
-        var authorsValue = '';
-        $.each(jsonData.contributors, function(index, author) {
-          authorsValue += authorTemplate.render({
-            author: author.name
-          });
-        });
-
-        jsonData.contributors = authorsValue;
-
-        var tableContent = '';
+        // suggestionTemplate: Hogan.compile(
+        //     '<b>{{ meeting }}</b>' +
+        //     '<small>' +
+        //     '<br>{{ date }}, {{ location }}' +
+        //     '<br>' +
+        //     '{{ coference_code }}' +
+        //     '</small>'
+        //   )
 
         $.each(jsonData, function(index, user) {
-          var labelCell = cellTemplate.render({
-            class: '',
-            content: index,
-          });
-          var valueCell = cellTemplate.render({
-            class: valueClasses[index],
-            content: user,
-          });
+          table += '<tr>';
+          table += '<td style="width: 100px;">' + index + '</td>';
+          if (typeof user !== 'object') {
+            // console.log(user)
+            // read more/less only in abstract field
+            if (index === 'Abstract') {
+              table += '<td><p class="readmore">' + user + '</p></td>';
+            } else {
+              table += '<td>' + user + '</td>';
+            }
+          } else {
+            if (index === 'Title') {
+              table += '<td>' + user[0] + '</td>';
+            } else {
+              table += '<td><p class="readmore">';
+              for (var i in jsonData.Authors) {
+                table += jsonData.Authors[i].name + '<br>';
+              }
+              table += '</p></td>';
+            }
+          }
 
-          var row = rowTemplate.render({
-            content: labelCell + valueCell
-          });
-          tableContent += row;
+          table += '</tr>';
 
           $.publish('validation/results');
         });
 
-        var table = tableTemplate.render({
-          content: tableContent
-        });
+        // var table = tableTemplate.render({
+        //   content: tableContent
+        // });
+        table += '</tbody></table>';
 
         $('#myModal .modal-body').html(table);
-
-        //FIXME: doesn't append More/Less
-        $('.readmore').readmore({
-          speed: 200,
-          maxHeight: 90,
-          moreLink: '<a href="#">Read more</a>',
-          lessLink: '<a href="#">Less</a>'
-        });
 
         //FIXME: fill the form only when the user accepts the data
         // var that = this;
@@ -122,6 +164,9 @@ define(function(require, exports, module) {
 
       // smooth scrolling to the first box under the main one of the import
       scrollSmooth: function(el) {
+        $.subscribe('show.modal.form', function(e) {
+          console.log('subscribing to the "show.modal.form" event.....');
+        });
         var $root = $('html, body');
 
         //FIXME: use selectors with jQuery and not CSS like children, parents etc.
@@ -150,7 +195,21 @@ define(function(require, exports, module) {
           $.subscribe('validation/results', function(e) {
             // console.log(results); // print the results from the call when the AJAX is done
             s.myModal.modal();
+
           });
+        });
+
+        $('#myModal').on('shown.bs.modal', function(e) {
+          console.log('on shown');
+
+          // FIXME: add icons instead of More/Less ??
+          $('.readmore').readmore({
+            speed: 200,
+            maxHeight: 80,
+            moreLink: '<div class="pull-left"><a href="" class="fa fa-caret-square-o-down" style="font-size: 12px;"> Show more</a></div>',
+            lessLink: '<div class="pull-left"><a href="" class="fa fa-caret-square-o-up" style="font-size: 12px;"> Show less</a></div>'
+          });
+
         });
 
         s.skip_import.on('click', function(e) {
