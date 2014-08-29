@@ -302,7 +302,7 @@ define(function(require, exports, module) {
           // FIXME: a workaround for button() conflict between jQuery-UI
           //  and bootstrap.js. Here should be button() from bootstrap.js
           //  called
-          that.toggleImportButton(that.$importButton, 'reset')
+          that.toggleImportButton(that.$importButton, 'reset');
           //        that.$importButton.button('reset');
         }
       );
@@ -370,8 +370,8 @@ define(function(require, exports, module) {
           $("#submitForm").trigger("dataFormSave", {
             url: that.save_url,
             field_id: field_id,
-            value:value,
-            show:false,
+            value: value,
+            show: false,
             form_selector: "#submitForm"
           });
         }

@@ -237,6 +237,6 @@ define(function(require, exports, module) {
       cannotFindMessage: undefined,
     };
 
-  module.exports = ConferencesTypeahead;
+    module.exports = ConferencesTypeahead;
   })(jQuery);
 });

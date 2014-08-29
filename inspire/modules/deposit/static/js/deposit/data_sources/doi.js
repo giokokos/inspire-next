@@ -36,20 +36,33 @@ define(function(require, exports, module) {
         var journal = "";
 
         if ("container-title" in data) {
-          for(var i = 0; i < data['container-title'].length; i++) {
-            if(i == data['container-title'].length-1){
+          for (var i = 0; i < data['container-title'].length; i++) {
+            if (i === data['container-title'].length - 1) {
               journal += data['container-title'][i];
-            }
-            else{
+            } else {
               journal += data['container-title'][i] + ', ';
             }
           }
         }
 
-        var pages = data.page.split('-');
-        var page_number = "";
-        if (pages.length == 2) {
-          page_number = pages[1]-pages[0];
+        // var pages = data.page.split('-');
+        // var page_number = "";
+        // if (pages.length === 2) {
+        //   page_number = pages[1] - pages[0];
+        // }
+
+        var pages,
+              page_number;
+
+        if (data.page) {
+          pages = data.page.split('-');
+          if (pages.length === 2) {
+            page_number = pages[1] - pages[0];
+          } else {
+            page_number = "";
+          }
+        } else {
+          data.page = "";
         }
 
         return {
