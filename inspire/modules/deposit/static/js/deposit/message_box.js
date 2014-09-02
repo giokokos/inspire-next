@@ -40,6 +40,7 @@ define(function(require, exports, module) {
         this.options = $.extend({}, $.fn.messageBox.defaults, options);
 
         this.template = this.options.hoganTemplate;
+        this.genericTemplate = Hogan.compile('<div class="message">{{ content }}</div>');
 
       }
 
@@ -51,8 +52,9 @@ define(function(require, exports, module) {
          * @private
          */
         _appendOne: function(ctx) {
-          this.$element.append(this.template.render(ctx));
-          this.$element.show('fast');
+          this.genericTemplate.render({
+            content: this.$element.append(this.template.render(ctx))
+          });
         },
 
         /**
@@ -73,6 +75,17 @@ define(function(require, exports, module) {
           var that = this;
           $.each(messages, function() {
             that._appendOne(this);
+          });
+        },
+
+        appendAndShow: function(messages) {
+          this.append(messages);
+          this.showMessages();
+        },
+
+        showMessages: function() {
+          $.each(this.$element.find('.message'), function(item) {
+            item.show('fast');
           });
         }
       };

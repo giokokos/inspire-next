@@ -117,6 +117,7 @@ define(function(require, exports, module) {
     this.$submissionForm = $('#submitForm');
     this.$conference = $('#conf_name');
     this.$conferenceId = $('#conference_id');
+    this.$previewModal = $('#myModal');
 
     // these fields' values will be deleted before submission so that they will not be
     // sent to the sever
@@ -176,6 +177,12 @@ define(function(require, exports, module) {
 
         cannotFindMessage: 'Cannot find this conference in our database.'
       });
+
+      this.previewModal = new ModalPreview(this.$previewModal, {
+        // skip_import: $('#skipImportData'),
+        labels: this.getLabels(),
+        hiddenFields: this.getHiddenFields()
+      });
     },
 
     /*
@@ -202,13 +209,21 @@ define(function(require, exports, module) {
         that.importData();
       });
 
-      this.$skipButton.on('click', function(event) {
-        // ModalPreview.subscriptions(this);
-        console.log('publishing..')
-        $.subscribe("test", this);
-        ModalPreview.showForm();
-        //ModalPreview.scrollSmooth(this);
+      this.$previewModal.on("accepted", function(event, data) {
+        var mapping = data;
+        that.fillForm(mapping);
+        that.fieldsGroup.resetState();
+        that.messageBox.showMessages();
+        // call the show Form
       });
+
+      // s.button_import.on('click', function(e) {
+      //     e.preventDefault();
+      //     // console.log('show modal');
+      //     $.subscribe('validation/results', function(e) {
+      //       s.myModal.modal();
+      //     });
+      //   });
 
       this.$submissionForm.on('submit', function(event) {
         that.$conferenceId.val(ConferencesTypeahead.getRawValue());
@@ -311,17 +326,14 @@ define(function(require, exports, module) {
         literatureFormPriorityMapper,
         // callback
         function(result) {
-          // create the modal_object based on result.mapping
-          // change the state of modal_object and send it to ModalPreview
-          var modal_object = jQuery.extend(true, {}, result.mapping);
-          that.removeHiddenFields(modal_object);
-          ModalPreview.init(that.renameLabels(modal_object));
-
-          //TODO: fill the form only when the user accepts the modal
-          that.fillForm(result.mapping);
-          that.fieldsGroup.resetState();
           that.messageBox.clean();
           that.messageBox.append(result.statusMessage);
+          // check for empty object {}
+          if (result.mapping) {
+            that.previewModal.show(result.mapping);
+          } else {
+            that.messageBox.showMessages();
+          }
           // FIXME: a workaround for button() conflict between jQuery-UI
           //  and bootstrap.js. Here should be button() from bootstrap.js
           //  called
@@ -336,13 +348,9 @@ define(function(require, exports, module) {
      *
      * @param dataMapping {} dictionary with schema 'field_id: field_value'
      */
-    removeHiddenFields: function removeHiddenFields(dataMapping) {
-      $.map(dataMapping, function(value, field_id) {
-        var $field = $('#' + field_id);
-        // hidden elements defined in the `forms.py` have hidden class
-        if ($field.hasClass('hidden')) {
-          delete dataMapping[field_id];
-        }
+    getHiddenFields: function getHiddenFields(dataMapping) {
+      return $.map($('input.hidden'), function(value, index) {
+        return value.id;
       });
     },
 
@@ -352,22 +360,35 @@ define(function(require, exports, module) {
      *
      * @param dataMapping {} dictionary with schema 'field_id: field_value'
      */
-    renameLabels: function renameLabels(dataMapping) {
-      var newObject = jQuery.extend(true, {}, dataMapping);
-      $.map(newObject, function(value, field_id) {
-        var $field = $('#' + field_id);
-        var query = $field.parents('#state-group-' + field_id).find('label');
-        if (query) {
-          newObject[field_id] = $.trim(query.text());
+    getLabels: function getLabels() {
+      // var newObject = jQuery.extend(true, {}, dataMapping);
+      //       var newObject = {};
+      // var $rows = $('.form-group > label + div');
+      // $.map($rows, function(row, index) {
+      //   var $label = $(row).find('label');
+      //   var label = $.trim($label.text());
+      //   var $field = $(row).find('.form-control');
+      //   if ($field.length && label) {
+      //     newObject[$field.first().id] = label;
+      //   }
+      // });
+      var newObject = {};
+      var fields = $('input');
+      $.map(fields, function(field, index) {
+        var query = $(field).parents('#state-group-' + field.id).find('label');
+        var label = $.trim(query.text());
+        if (query && label) {
+          newObject[field.id] = label;
         }
       });
-      var fObj = {};
-      $.each(newObject, function(i) {
-        fObj[this] = dataMapping[i];
-      });
-      dataMapping = fObj;
+      // var fObj = {};
+      // $.each(newObject, function(i) {
+      //   fObj[this] = dataMapping[i];
+      // });
+      // dataMapping = fObj;
 
-      return dataMapping;
+      // return dataMapping;
+      return newObject;
     },
 
     /**
@@ -415,7 +436,7 @@ define(function(require, exports, module) {
      *  special 'contributors' key to extract them to authors field.
      */
     fillForm: function fillForm(dataMapping) {
-console.log(dataMapping);
+      console.log(dataMapping);
       var that = this;
 
       if ($.isEmptyObject(dataMapping)) {
