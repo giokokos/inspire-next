@@ -50,12 +50,11 @@ PROCEEDINGS_CLASS = " proceedings-related"
 #
 def importdata_button(field, **dummy_kwargs):
     """Import data button."""
-    html = u'<a %s href="%s" data-target="%s">%s</a>' % \
+    html = u'<a %s data-target="%s">%s</a>' % \
            (html_params(id="importData",
                         class_="btn btn-success btn-large",
                         name="importData",
                         type="button"),
-            '#collapse-2',
             '#myModal',
             _('Auto import'))
     return HTMLString(html)
@@ -67,7 +66,7 @@ def skip_importdata(field, **dummy_kwargs):
            (html_params(id="skipImportData",
                         name="skipImportData",
                         type="button"),
-            '#collapse-2',
+            '#collapse-2',  # target for the next scrollable panel
             _('Skip, and fill the form manually'))
     return HTMLString(html)
 

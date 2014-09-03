@@ -27,15 +27,10 @@ define(function(require, exports, module) {
   // require the Readmore library
   require("/vendors/readmore/readmore.min.js");
 
-  var s;
-
   function ModalPreview($element, options) {
-    // this.$element = $element;
-    this.$element = $('#myModal');
-    // this.options = settings;
-
-    this.$acceptButton = this.$element.find('#success');
-    this.$rejectButton = this.$element.find('#danger');
+    this.$element = $element;
+    this.$acceptButton = this.$element.find('#acceptData');
+    this.$rejectButton = this.$element.find('#rejectData');
     this.data = {};
     this.labels = options.labels;
     this.hiddenFields = options.hiddenFields;
@@ -45,9 +40,6 @@ define(function(require, exports, module) {
   ModalPreview.prototype = {
 
     init: function() {
-      s = this.settings;
-      //console.log(s.myModal.find('.modal-body'));
-      // this.renderModal(results);
       this.bindUIActions();
     },
 
@@ -82,9 +74,15 @@ define(function(require, exports, module) {
       this.renderModal(renderData);
     },
 
+    // FIXME: use Hogan templates, see previous commit
     renderModal: function(jsonData) {
+      // FIXME: move it to the closure?
+      // if there is no identifier do nothing
+      if ($.isEmptyObject(jsonData)) {
+        return;
+      }
 
-      var table = '<table class="table table-stripped"><tr><th>Labels</th><th>Values</th></tr><tbody>';
+      var table = '<table class="table table-hover"><tbody>';
 
       console.log(jsonData);
 
@@ -113,7 +111,6 @@ define(function(require, exports, module) {
 
         table += '</tr>';
 
-        // $.publish('validation/results');
       });
 
       table += '</tbody></table>';
@@ -122,50 +119,31 @@ define(function(require, exports, module) {
       this.$element.modal();
     },
 
-    scrollSmooth: function(el) {
-      var $root = $('html, body');
-
-      $('#webdeposit_form_accordion > .panel:not(:first-child), #webdeposit_form_accordion + .well').removeClass('hide');
-
-      var href = $.attr(el, 'href');
-      $root.animate({
-        scrollTop: $(href).offset().top
-      }, 500, function() {
-        window.location.hash = '';
-      });
-    },
-
     bindUIActions: function() {
-
-      // console.log('bindUIActions');
 
       var that = this;
 
       this.$acceptButton.on('click', function(event) {
-        that.$element.trigger('accepted', that.data);
+        that.$element.trigger('accepted', [that.data, this]);
       });
 
       this.$rejectButton.on('click', function(event) {
         that.$element.trigger('rejected');
       });
 
-      $('#myModal').on('shown.bs.modal', function(e) {
-        // console.log('on shown');
+      this.$element.on('shown.bs.modal', function(e) {
 
+        // trigger the More/Less on the Authors and Abstract fields
         $('.readmore').readmore({
           speed: 200,
           maxHeight: 80,
-          moreLink: '<div class="pull-left"><a href="" class="fa fa-caret-square-o-down" style="font-size: 12px;"> Show more</a></div>',
-          lessLink: '<div class="pull-left"><a href="" class="fa fa-caret-square-o-up" style="font-size: 12px;"> Show less</a></div>'
+          moreLink: '<div class="pull-left"><a href="" class="fa fa-caret-square-o-down"' +
+            'style="font-size: 12px;"> Show more</a></div>',
+          lessLink: '<div class="pull-left"><a href="" class="fa fa-caret-square-o-up"' +
+            'style="font-size: 12px;"> Show less</a></div>'
         });
       });
 
-      // s.skip_import.on('click', function(e) {
-      //   console.log('clicked');
-      //   s.hide_elements.removeClass('hide');
-      //   //var target = $('#webdeposit_form_accordion > .panel:eq(1)').children('.panel-collapse').attr('id');
-      //   that.scrollSmooth(this);
-      // });
     }
   };
   module.exports = ModalPreview;

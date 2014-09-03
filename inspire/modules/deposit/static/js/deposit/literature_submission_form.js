@@ -42,12 +42,6 @@ define(function(require, exports, module) {
 
   require('ui/effect-highlight');
 
-  var o = $({});
-  $.subscribe = o.on.bind(o);
-  $.publish = o.trigger.bind(o);
-
-
-
   /**
    * This mapper assumes it receives standarized data format
    * after treating with another mapper.
@@ -178,6 +172,7 @@ define(function(require, exports, module) {
         cannotFindMessage: 'Cannot find this conference in our database.'
       });
 
+      // starts the modal preview
       this.previewModal = new ModalPreview(this.$previewModal, {
         // skip_import: $('#skipImportData'),
         labels: this.getLabels(),
@@ -209,26 +204,45 @@ define(function(require, exports, module) {
         that.importData();
       });
 
-      this.$previewModal.on("accepted", function(event, data) {
+      this.$skipButton.click(function(event) {
+        that.showRestForm(this);
+      });
+
+      this.$previewModal.on("accepted", function(event, data, el) {
         var mapping = data;
         that.fillForm(mapping);
         that.fieldsGroup.resetState();
         that.messageBox.showMessages();
-        // call the show Form
+        that.showRestForm(el);
       });
-
-      // s.button_import.on('click', function(e) {
-      //     e.preventDefault();
-      //     // console.log('show modal');
-      //     $.subscribe('validation/results', function(e) {
-      //       s.myModal.modal();
-      //     });
-      //   });
 
       this.$submissionForm.on('submit', function(event) {
         that.$conferenceId.val(ConferencesTypeahead.getRawValue());
         that.deleteIgnoredValues();
       });
+    },
+
+    /**
+     * Show the rest of the form except for the first panel
+     */
+    showRestForm: function showRestForm(el) {
+      var $root = $('body');
+
+      // traverse the DOM starting from the parent form
+      var $hiddenElements = $('#submitForm').find('#webdeposit_form_accordion');
+
+      // shows the hidden elements of the form
+      $hiddenElements
+        .children('.panel:not(:first-child)') // all the panels except for the first
+      .removeClass('hide');
+      $hiddenElements
+        .siblings('.well') // the action bar
+      .removeClass('hide');
+
+      var href = $.attr(el, 'href');
+      $root.animate({
+        scrollTop: $(href).offset().top
+      }, 400);
     },
 
     toggleImportButton: function toggleImportButton($button, state) {
@@ -328,7 +342,7 @@ define(function(require, exports, module) {
         function(result) {
           that.messageBox.clean();
           that.messageBox.append(result.statusMessage);
-          // check for empty object {}
+          // FIXME: check for empty object {}
           if (result.mapping) {
             that.previewModal.show(result.mapping);
           } else {
@@ -372,6 +386,7 @@ define(function(require, exports, module) {
       //     newObject[$field.first().id] = label;
       //   }
       // });
+      // FIXME: bug of the abstract (?)
       var newObject = {};
       var fields = $('input');
       $.map(fields, function(field, index) {
@@ -381,13 +396,7 @@ define(function(require, exports, module) {
           newObject[field.id] = label;
         }
       });
-      // var fObj = {};
-      // $.each(newObject, function(i) {
-      //   fObj[this] = dataMapping[i];
-      // });
-      // dataMapping = fObj;
 
-      // return dataMapping;
       return newObject;
     },
 
@@ -437,6 +446,7 @@ define(function(require, exports, module) {
      */
     fillForm: function fillForm(dataMapping) {
       console.log(dataMapping);
+
       var that = this;
 
       if ($.isEmptyObject(dataMapping)) {
