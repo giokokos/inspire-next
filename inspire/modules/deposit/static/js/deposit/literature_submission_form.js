@@ -174,7 +174,6 @@ define(function(require, exports, module) {
 
       // starts the modal preview
       this.previewModal = new ModalPreview(this.$previewModal, {
-        // skip_import: $('#skipImportData'),
         labels: this.getLabels(),
         hiddenFields: this.getHiddenFields()
       });
@@ -342,7 +341,6 @@ define(function(require, exports, module) {
         function(result) {
           that.messageBox.clean();
           that.messageBox.append(result.statusMessage);
-          // FIXME: check for empty object {}
           if (result.mapping) {
             that.previewModal.show(result.mapping);
           } else {
@@ -359,8 +357,6 @@ define(function(require, exports, module) {
 
     /**
      * Removes hidden fields from the object
-     *
-     * @param dataMapping {} dictionary with schema 'field_id: field_value'
      */
     getHiddenFields: function getHiddenFields(dataMapping) {
       return $.map($('input.hidden'), function(value, index) {
@@ -369,34 +365,19 @@ define(function(require, exports, module) {
     },
 
     /**
-     * Extends the object and maps the keys of the new object to the labels
-     * extracted from the form
-     *
-     * @param dataMapping {} dictionary with schema 'field_id: field_value'
+     * Maps to the labels extracted from the form
      */
     getLabels: function getLabels() {
-      // var newObject = jQuery.extend(true, {}, dataMapping);
-      //       var newObject = {};
-      // var $rows = $('.form-group > label + div');
-      // $.map($rows, function(row, index) {
-      //   var $label = $(row).find('label');
-      //   var label = $.trim($label.text());
-      //   var $field = $(row).find('.form-control');
-      //   if ($field.length && label) {
-      //     newObject[$field.first().id] = label;
-      //   }
-      // });
-      // FIXME: bug of the abstract (?)
       var newObject = {};
-      var fields = $('input');
-      $.map(fields, function(field, index) {
-        var query = $(field).parents('#state-group-' + field.id).find('label');
-        var label = $.trim(query.text());
-        if (query && label) {
-          newObject[field.id] = label;
+      var $rows = $("div[id^='state-group-']");
+      $.map($rows, function(row, index) {
+        var $label = $(row).find('label');
+        var label = $.trim($label.text());
+        var $field = $(row).find("div[id^='field-']").children().first();
+        if ($label && label) {
+          newObject[$field[0].id] = label;
         }
       });
-
       return newObject;
     },
 
@@ -445,7 +426,6 @@ define(function(require, exports, module) {
      *  special 'contributors' key to extract them to authors field.
      */
     fillForm: function fillForm(dataMapping) {
-      console.log(dataMapping);
 
       var that = this;
 

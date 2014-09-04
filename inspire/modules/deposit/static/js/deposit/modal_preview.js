@@ -74,46 +74,54 @@ define(function(require, exports, module) {
       this.renderModal(renderData);
     },
 
-    // FIXME: use Hogan templates, see previous commit
     renderModal: function(jsonData) {
-      // FIXME: move it to the closure?
-      // if there is no identifier do nothing
+
       if ($.isEmptyObject(jsonData)) {
         return;
       }
 
-      var table = '<table class="table table-hover"><tbody>';
+      var tableTemplate = Hogan.compile('<table class="table table-hover"><tbody>{{{content}}}</tbody></table>');
+      var rowTemplate = Hogan.compile('<tr>{{{content}}}</tr>\n');
+      var cellTemplate = Hogan.compile('<td><p class="{{class}}">{{{content}}}</p></td>\n');
 
-      console.log(jsonData);
+      var valueClasses = {
+        Abstract: 'readmore',
+        Authors: 'readmore',
+      };
+
+      var authorTemplate = Hogan.compile('{{author}}<br>');
+
+      var authorsValue = '';
+      $.each(jsonData.Authors, function(index, author) {
+        authorsValue += authorTemplate.render({
+          author: author.name
+        });
+      });
+
+      jsonData.Authors = authorsValue;
+
+      var tableContent = '';
 
       $.each(jsonData, function(index, user) {
-        table += '<tr>';
-        table += '<td style="width: 100px;">' + index + '</td>';
-        if (typeof user !== 'object') {
-          // console.log(user)
-          // read more/less only in abstract field
-          if (index === 'Abstract') {
-            table += '<td><p class="readmore">' + user + '</p></td>';
-          } else {
-            table += '<td>' + user + '</td>';
-          }
-        } else {
-          if (index === 'Title') {
-            table += '<td>' + user[0] + '</td>';
-          } else {
-            table += '<td><p class="readmore">';
-            for (var i in jsonData.Authors) {
-              table += jsonData.Authors[i].name + '<br>';
-            }
-            table += '</p></td>';
-          }
-        }
+        var labelCell = cellTemplate.render({
+          class: '',
+          content: index,
+        });
+        var valueCell = cellTemplate.render({
+          class: valueClasses[index],
+          content: user,
+        });
 
-        table += '</tr>';
+        var row = rowTemplate.render({
+          content: labelCell + valueCell
+        });
+        tableContent += row;
 
       });
 
-      table += '</tbody></table>';
+      var table = tableTemplate.render({
+        content: tableContent
+      });
 
       $('#myModal .modal-body').html(table);
       this.$element.modal();
@@ -132,7 +140,6 @@ define(function(require, exports, module) {
       });
 
       this.$element.on('shown.bs.modal', function(e) {
-
         // trigger the More/Less on the Authors and Abstract fields
         $('.readmore').readmore({
           speed: 200,
@@ -143,7 +150,6 @@ define(function(require, exports, module) {
             'style="font-size: 12px;"> Show less</a></div>'
         });
       });
-
     }
   };
   module.exports = ModalPreview;
