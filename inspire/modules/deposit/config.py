@@ -21,5 +21,5 @@
 DEPOSIT_INSPIRE_SUBJECTS_KB = "Subjects"
 """ KB used for Subjects """
 
-DEPOSIT_INSPIRE_LICENSE_KB = "LICENSE"
-""" KB used for Licenses """
+DEPOSIT_INSPIRE_DEGREE_KB = "DEGREE"
+""" KB used for Degrees """
