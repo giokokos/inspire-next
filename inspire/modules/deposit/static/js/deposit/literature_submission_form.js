@@ -89,10 +89,10 @@ define(function(require, exports, module) {
     this.$field_list = {
       article: $('*[class~="article-related"]'),
       thesis: $('*[class~="thesis-related"]'),
-      chapter: $('*[class~="chapter-related"]'),
-      book: $('*[class~="book-related"]'),
-      proceedings: $('*[class~="proceedings-related"]'),
-      translated_title: $("#state-group-title_translation"),
+      // chapter: $('*[class~="chapter-related"]'),
+      // book: $('*[class~="book-related"]'),
+      // proceedings: $('*[class~="proceedings-related"]'),
+      // translated_title: $("#state-group-title_translation"),
     };
 
     this.$doi_field = $("#doi");
@@ -140,7 +140,8 @@ define(function(require, exports, module) {
       // focus on the first element of the form
       $('form:first *:input[type!=hidden]:first').focus();
 
-      this.slideUpFields(this.$field_list);
+      // this.slideUpFields(this.$field_list);
+      this.checkDepositionType();
 
       this.fieldsGroup = $("#journal_title, #volume, #issue, #page_range, #article_id, #year")
         .fieldsGroup({
@@ -337,11 +338,12 @@ define(function(require, exports, module) {
     },
 
     onDepositionTypeChanged: function onDepositionTypeChanged() {
-      this.slideUpFields(this.$field_list);
+      this.checkDepositionType();
+      // this.slideUpFields(this.$field_list);
       var deposition_type = this.$deposition_type.val();
       var $type_related_fields = this.$field_list[deposition_type];
       var $type_related_groups = $type_related_fields.parents('.form-group');
-      $type_related_groups.slideDown();
+      this.slideDownFields($type_related_groups);
       var $type_related_panel = $type_related_fields.parents('.panel-body');
       $type_related_panel.effect(
         "highlight", {
@@ -357,6 +359,109 @@ define(function(require, exports, module) {
             "proceedings. For contributions use Article/Conference paper."
         }));
       }
+    },
+
+    /**
+     * Checks the deposition type
+     */
+    checkDepositionType: function checkDepositionType() {
+      var deposition_type = this.$deposition_type.val(),
+        that = this;
+
+      if (deposition_type === 'article') {
+        this.slideUpFields(this.$field_list.thesis);
+        // wait for the animations to finish in order to slideUp the panel
+        $.when.apply(this, $.map(this.$field_list.thesis, function(item, idx) {
+          return $(item).parents('.form-group').promise();
+        })).done(function() {
+          that.slideUpPanel();
+        });
+        this.slideDownFields(this.$field_list.article);
+        $.when.apply(this, $.map(this.$field_list.article, function(item, idx) {
+          return $(item).parents('.form-group').promise();
+        })).done(function() {
+          that.slideDownPanel();
+        });
+      }
+      if (deposition_type === 'thesis') {
+        this.slideUpFields(this.$field_list.article);
+        // wait for the animations to finish in order to slideUp the panel
+        $.when.apply(this, $.map(this.$field_list.article, function(item, idx) {
+          return $(item).parents('.form-group').promise();
+        })).done(function() {
+          that.slideUpPanel();
+        });
+        this.slideDownFields(this.$field_list.thesis);
+        $.when.apply(this, $.map(this.$field_list.thesis, function(item, idx) {
+          return $(item).parents('.form-group').promise();
+        })).done(function() {
+          that.slideDownPanel();
+        });
+      }
+    },
+
+    /**
+     * Slide up empty Panels
+     */
+    slideUpPanel: function slideUpPanel() {
+      var $allPanels = $('.form-wrapper')
+        .children('.panel:gt(0)');
+
+      $.each($allPanels, function($field, field_name) {
+        // all elements hidden
+        if ($(field_name)
+          .children('.panel-collapse')
+          .children('.panel-body')
+          .children('.form-group:visible')
+          .length === 0) {
+          // console.log('all hidden');
+          $(field_name).slideUp();
+        } else {
+          // console.log('not all hidden');
+        }
+      });
+    },
+
+    /**
+     * Slide down empty Panels
+     */
+     // FIXME: there is a bug of allready hidden fields
+     // eg. NOTE under Proceedings box
+    slideDownPanel: function slideUpPanel() {
+      var $allPanels = $('.form-wrapper')
+        .children('.panel:gt(0)');
+
+      $.each($allPanels, function($field, field_name) {
+        // all elements hidden
+        if ($(field_name)
+          .children('.panel-collapse')
+          .children('.panel-body')
+          .children('.form-group')
+          .css('display') === 'block') {
+          // console.log('not all hidden');
+          $(field_name).slideDown();
+        } else {
+          // console.log('all hidden');
+        }
+      });
+    },
+
+    /**
+     * Hide form fields individually related to each document type
+     */
+    slideUpFields: function slideUpFields($fields) {
+      $.each($fields, function($field, field_name) {
+        $(field_name).parents('.form-group').slideUp();
+      });
+    },
+
+    /**
+     * Show form fields individually related to each document type
+     */
+    slideDownFields: function slideDownFields($fields) {
+      $.each($fields, function($field, field_name) {
+        $(field_name).parents('.form-group').slideDown();
+      });
     },
 
     importData: function importData() {
@@ -453,15 +558,6 @@ define(function(require, exports, module) {
         }
       });
       return newObject;
-    },
-
-    /**
-     * Hide form fields individually related to each document type
-     */
-    slideUpFields: function slideUpFields($fields) {
-      $.map($fields, function($field, field_name) {
-        $field.parents('.form-group').slideUp();
-      });
     },
 
     /**
